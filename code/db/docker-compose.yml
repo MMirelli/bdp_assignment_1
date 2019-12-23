@@ -1,0 +1,53 @@
+version: "3.3"
+
+# make sure that docker machine has enough memory to run the cluster.
+# setting it up to 6GB seems to work.
+
+services:
+
+ cas-seed_premise:
+    image: cassandra:latest
+    ports:
+     - "7000:7000"
+     - "9042:9042"
+    environment:
+     - "CASSANDRA_TRANSPORT_PORT_NUMBER=7000"
+     - "CASSANDRA_SEEDS=cas-seed_premise,cas-seed_cloud"
+     - "CASSANDRA_CLUSTER_NAME=TaxisLocator"
+     - "CASSANDRA_DC=on_premise"
+     - "CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch"
+     - "MAX_HEAP_SIZE=2G"
+     - "HEAP_NEWSIZE=1G"
+    networks:
+      casnet:
+         ipv4_address: 172.18.0.2
+    restart: always
+
+ cas-seed_cloud:
+    image: cassandra:latest
+    ports:
+     - "7003:7000"
+     - "9045:9042"
+    environment:
+     - "CASSANDRA_TRANSPORT_PORT_NUMBER=7000"
+     - "CASSANDRA_SEEDS=cas-seed_premise,cas-seed_cloud"
+     - "CASSANDRA_CLUSTER_NAME=TaxisLocator"
+#      needed for setting up custom cluster name
+     - "CASSANDRA_DC=on_cloud"
+     - "CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch"
+     - "MAX_HEAP_SIZE=2G"
+     - "HEAP_NEWSIZE=1G"
+    networks:
+     casnet:
+         ipv4_address: 172.18.0.5      
+    restart: always
+   
+ setup_worker:
+   image: massimilianomirelli/setup_db:0.1
+   depends_on:
+     - cas-seed_premise
+     - cas-seed_cloud
+    
+networks:
+  casnet:
+     external: true

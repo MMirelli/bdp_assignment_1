@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+  stats:
+    image: bitnami/rabbitmq
+    environment:
+      - RABBITMQ_NODE_TYPE=stats
+      - RABBITMQ_NODE_NAME=rabbit@stats
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+    ports:
+      - '15672:15672'
+    networks:
+       rmqnet:
+         ipv4_address: 172.29.0.2
+    restart: always
+    
+  queue:
+    image: bitnami/rabbitmq
+    ports:
+      - "5672:5672"
+    environment:
+      - RABBITMQ_NODE_TYPE=queue-disc
+      - RABBITMQ_NODE_NAME=rabbit@queue
+      - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+    networks:
+       rmqnet:
+         ipv4_address: 172.29.0.4
+    restart: always
+
+  consumer:
+    image: massimilianomirelli/consumer:0.7
+    depends_on:
+       - queue
+networks:
+   rmqnet:
+     external: true
