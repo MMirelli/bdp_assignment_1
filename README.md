@@ -22,11 +22,8 @@ The deploy uses docker-compose for starting up 2 `cassandra-db` and 2 `bitnami/r
 The main building program is started by `./code/run.sh`, which triggers the composition of the docker-compose files (`code/db/docker-compose.yml` and `code/queue/docker-compose.yml`) and then a number of clients (`code/client.py`) specified by the user. 
 
 Logs can be found in `logs` with each file following the format:
-
-<center>
-	`<log_type>_<client_number>.log` 
-</center>
-
+<center>`&ltlog_type&gt_&ltclient_number&gt.log`</center>
+<br>
 where `log_type` is one of `db`, `queue`, `client` and `client_number` is the number of concurrent clients run for the ingestion. 
 
 -----
